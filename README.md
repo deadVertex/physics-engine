@@ -7,7 +7,7 @@ rigid body dynamics are simulated in games.
 
 ## Instructions
 ### Build
-```
+```shell
 mkdir build
 cd build
 cmake ..
@@ -15,6 +15,6 @@ cmake --build .
 ```
 
 ### Run
-```
+```shell
 ./build/src/main
 ```
