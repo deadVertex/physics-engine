@@ -1,7 +1,22 @@
-cmake_minimum_required (VERSION 2.8)
-project (physics-engine)
+cmake_minimum_required (VERSION 3.13)
+
+project (physics-engine LANGUAGES CXX)
 
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
 add_subdirectory (src)
+
+# we cannot analyse results without gcov
+find_program(GCOV_PATH gcov)
+if(NOT GCOV_PATH)
+  message(FATAL_ERROR "Code coverage analysis requires gcov!")
+endif()
+
+enable_testing()
+
+# TODO: Use --coverage flag for clang support
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
+SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
+
+add_subdirectory(test)
