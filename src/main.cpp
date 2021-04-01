@@ -10,17 +10,16 @@ static void RenderParticles(ParticlePhysics2D *physics, SDL_Renderer *renderer)
     f32 height = 4.0f;
 
     SDL_FRect rects[64];
-    for (u32 i = 0; i < physics->particleCount; ++i)
+    for (u32 i = 0; i < physics->count; ++i)
     {
-        Particle *particle = physics->particles + i;
-        rects[i].x = particle->position.x - width * 0.5f;
-        rects[i].y = particle->position.y - height * 0.5f;
+        rects[i].x = physics->position[i].x - width * 0.5f;
+        rects[i].y = physics->position[i].y - height * 0.5f;
         rects[i].w = width;
         rects[i].h = height;
     }
 
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_RenderFillRectsF(renderer, rects, physics->particleCount);
+    SDL_RenderFillRectsF(renderer, rects, physics->count);
 }
 
 int main(int argc, char **argv)
@@ -46,11 +45,11 @@ int main(int argc, char **argv)
     printf("2D Physics engine\n");
 
     ParticlePhysics2D particlePhysics = {};
-    particlePhysics.particles[0].position = Vec2(20.0f, 20.0f);
-    particlePhysics.particles[0].acceleration = Vec2(2.5f, 4.0f);
-    particlePhysics.particles[1].position = Vec2(40.0f, 40.0f);
-    particlePhysics.particles[1].acceleration = Vec2(-1.2f, 5.5f);
-    particlePhysics.particleCount = 2;
+    particlePhysics.position[0] = Vec2(20.0f, 20.0f);
+    particlePhysics.acceleration[0] = Vec2(2.5f, 4.0f);
+    particlePhysics.position[1] = Vec2(40.0f, 40.0f);
+    particlePhysics.acceleration[1] = Vec2(-1.2f, 5.5f);
+    particlePhysics.count = 2;
 
     while (1)
     {
@@ -63,7 +62,8 @@ int main(int argc, char **argv)
             }
         }
 
-        Integrate(&particlePhysics, 0.016f);
+        Integrate2D(particlePhysics.position, particlePhysics.velocity,
+            particlePhysics.acceleration, particlePhysics.count, 0.016f);
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);

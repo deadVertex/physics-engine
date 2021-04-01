@@ -2,17 +2,13 @@
 
 #include "math_lib.h"
 
-struct Particle
-{
-    vec2 position;
-    vec2 velocity;
-    vec2 acceleration;
-};
-
 struct ParticlePhysics2D
 {
-    Particle particles[64];
-    u32 particleCount;
+    vec2 position[64];
+    vec2 velocity[64];
+    vec2 acceleration[64];
+    u32 count;
 };
 
-extern void Integrate(ParticlePhysics2D *state, f32 dt);
+extern void Integrate2D(
+    vec2 *positions, vec2 *velocities, vec2 *accelerations, u32 count, f32 dt);
