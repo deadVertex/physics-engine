@@ -3,6 +3,7 @@
 #include <SDL.h>
 
 #include "particle_physics_2d.h"
+#include "drawing.h"
 
 static void RenderParticles(ParticlePhysics2D *physics, SDL_Renderer *renderer)
 {
@@ -20,6 +21,21 @@ static void RenderParticles(ParticlePhysics2D *physics, SDL_Renderer *renderer)
 
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderFillRectsF(renderer, rects, physics->count);
+}
+
+static void RenderParticlesAsCircles(
+    ParticlePhysics2D *physics, SDL_Renderer *renderer)
+{
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+
+    vec2 vertices[128];
+    for (u32 i = 0; i < physics->count; ++i)
+    {
+        u32 count = GenerateCircleVertices(
+            vertices, ArrayCount(vertices), physics->position[i], 32.0f, 15);
+        SDL_RenderDrawLinesF(renderer, (const SDL_FPoint *)vertices, count);
+    }
+
 }
 
 int main(int argc, char **argv)
@@ -67,7 +83,7 @@ int main(int argc, char **argv)
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-        RenderParticles(&particlePhysics, renderer);
+        RenderParticlesAsCircles(&particlePhysics, renderer);
         SDL_RenderPresent(renderer);
 
         SDL_Delay(16);

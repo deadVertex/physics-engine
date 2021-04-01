@@ -16,6 +16,8 @@ add_executable(
     test_vec2.cpp
     ../src/particle_physics_2d.cpp
     test_particle_physics_2d.cpp
+    ../src/drawing.cpp
+    test_drawing.cpp
     )
 
 target_link_libraries(unit_tests PRIVATE gtest_main)
