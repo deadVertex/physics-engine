@@ -1,9 +1,31 @@
 #include <gtest/gtest.h>
 
-TEST(vec2, add)
+#include "math_lib.h"
+
+TEST(vec2, Create)
 {
-    float a = 1.0f;
-    float b = 2.0f;
-    float c = a + b;
-    ASSERT_NEAR(c, 3.0f, 1.0e-11);
+    vec2 v = Vec2(1.0f, 2.0f);
+    ASSERT_EQ(v.x, 1.0f);
+    ASSERT_EQ(v.y, 2.0f);
+}
+
+TEST(vec2, Add)
+{
+    vec2 v = Vec2(1.0f, 2.0f) + Vec2(3.0f, 4.0f);
+    ASSERT_EQ(v.x, 4.0f);
+    ASSERT_EQ(v.y, 6.0f);
+}
+
+TEST(vec2, Subtract)
+{
+    vec2 v = Vec2(3.0f, 4.0f) - Vec2(1.0f, 2.0f);
+    ASSERT_EQ(v.x, 2.0f);
+    ASSERT_EQ(v.y, 2.0f);
+}
+
+TEST(vec2, Multiply)
+{
+    vec2 v = Vec2(1.0f, 2.0f) * 2.0f;
+    ASSERT_EQ(v.x, 2.0f);
+    ASSERT_EQ(v.y, 4.0f);
 }
