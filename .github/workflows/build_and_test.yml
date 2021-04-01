@@ -30,3 +30,17 @@ jobs:
       working-directory: ${{github.workspace}}/build
       shell: bash
       run: ctest -C $BUILD_TYPE --output-on-failure --verbose
+
+    - name: Setup python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Upload code coverage to coveralls
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip setuptools cpp-coveralls
+        coveralls -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*" --exclude "venv" --exclude "build/_deps"
