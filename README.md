@@ -1,6 +1,7 @@
 # Physics Engine
 ![Superlinter](https://github.com/deadVertex/physics-engine/actions/workflows/superlinter.yml/badge.svg)
 ![Build and Test](https://github.com/deadVertex/physics-engine/actions/workflows/build_and_test.yml/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/deadVertex/physics-engine/badge.svg?branch=setup-unit-tests)](https://coveralls.io/github/deadVertex/physics-engine?branch=setup-unit-tests)
 
 My own experiments and attempt to write a physics engine to learn about how
 rigid body dynamics are simulated in games.
