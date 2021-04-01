@@ -7,6 +7,16 @@ include_directories(${SDL2_INCLUDE_DIRS})
 
 add_subdirectory (src)
 
+# we cannot analyse results without gcov
+find_program(GCOV_PATH gcov)
+if(NOT GCOV_PATH)
+  message(FATAL_ERROR "Code coverage analysis requires gcov!")
+endif()
+
 enable_testing()
+
+# TODO: Use --coverage flag for clang support
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
+SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
 
 add_subdirectory(test)

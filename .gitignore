@@ -33,3 +33,6 @@
 
 # Default build directory
 build/**
+
+# Python venv directory
+venv/**
