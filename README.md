@@ -7,6 +7,7 @@ rigid body dynamics are simulated in games.
 
 ## Dependencies
 - Cmake 2.8 or later
+- libsdl2-dev
 
 ## Instructions
 ### Build

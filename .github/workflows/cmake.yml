@@ -15,6 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Install SDL2
+      run: sudo apt install libsdl2-dev
+
     - uses: actions/checkout@v2
 
     - name: Create Build Environment
