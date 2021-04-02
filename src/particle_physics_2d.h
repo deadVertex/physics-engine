@@ -10,5 +10,5 @@ struct ParticlePhysics2D
     u32 count;
 };
 
-extern void Integrate2D(
+void Integrate2D(
     vec2 *positions, vec2 *velocities, vec2 *accelerations, u32 count, f32 dt);

@@ -31,3 +31,22 @@ u32 GenerateCircleVertices(
 
     return count;
 }
+
+u32 GenerateBoxVertices(vec2 *vertices, u32 maxVertices, vec2 center,
+    vec2 halfDims, f32 orientation)
+{
+    u32 count = 0;
+
+    // TODO: Support orientation
+    if (maxVertices >= 5)
+    {
+        vertices[0] = center + Vec2(-halfDims.x, -halfDims.y);
+        vertices[1] = center + Vec2(halfDims.x, -halfDims.y);
+        vertices[2] = center + Vec2(halfDims.x, halfDims.y);
+        vertices[3] = center + Vec2(-halfDims.x, halfDims.y);
+        vertices[4] = center + Vec2(-halfDims.x, -halfDims.y);
+        count = 5;
+    }
+
+    return count;
+}
