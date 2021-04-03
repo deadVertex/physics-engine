@@ -10,6 +10,7 @@ rigid body dynamics are simulated in games.
 - Cmake 2.8 or later
 - libsdl2-dev
 - gcovr
+- clang-format
 
 ## Instructions
 ### Install build dependencies (for Ubuntu 20.04)
@@ -42,3 +43,6 @@ gcovr -r . --exclude build
 ```shell
 ./build/src/main
 ```
+
+## Sources
+- [Chris Hecker's articles on Rigid Body Dynamics](https://chrishecker.com/Rigid_Body_Dynamics)
