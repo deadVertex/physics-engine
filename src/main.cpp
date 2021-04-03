@@ -21,24 +21,6 @@ inline vec2 WorldSpaceToScreenSpace(vec2 p)
     return p;
 }
 
-static void RenderParticles(ParticlePhysics2D *physics, SDL_Renderer *renderer)
-{
-    f32 width = 4.0f;
-    f32 height = 4.0f;
-
-    SDL_FRect rects[64];
-    for (u32 i = 0; i < physics->count; ++i)
-    {
-        rects[i].x = physics->position[i].x - width * 0.5f;
-        rects[i].y = physics->position[i].y - height * 0.5f;
-        rects[i].w = width;
-        rects[i].h = height;
-    }
-
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_RenderFillRectsF(renderer, rects, physics->count);
-}
-
 static void DrawLines(SDL_Renderer *renderer, vec2 *vertices, u32 count)
 {
     for (u32 i = 0; i < count; ++i)
@@ -141,6 +123,9 @@ inline SatResult SAT(vec2 p, f32 radius, vec2 center, vec2 halfDims)
 
 int main(int argc, char **argv)
 {
+    (void)argc;
+    (void)argv;
+
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         fprintf(stderr, "Failed to initialize SDL: %s\n", SDL_GetError());
@@ -195,7 +180,6 @@ int main(int argc, char **argv)
         {
             vec2 p = particlePhysics.position[i];
             f32 r = 0.25f;
-            SatResult minResult = {};
             for (u32 boxIndex = 0; boxIndex < ArrayCount(boxes); ++boxIndex)
             {
                 vec2 c = boxes[boxIndex].center;
