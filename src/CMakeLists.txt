@@ -1,4 +1,4 @@
-add_executable (main 
+add_executable (main
     main.cpp
     particle_physics_2d.cpp
     drawing.cpp
