@@ -19,7 +19,7 @@ TEST(Drawing, GenerateBoxVertices)
     vec2 vertices[8];
     vec2 dimensions = Vec2(2.0f, 4.0f);
     u32 count = GenerateBoxVertices(vertices, ArrayCount(vertices),
-            Vec2(1.0f, 2.0f), dimensions * 0.5f, 0.0f);
+        Vec2(1.0f, 2.0f), dimensions * 0.5f, 0.0f);
     ASSERT_EQ(count, 5);
     ASSERT_NEAR(vertices[1].x - vertices[0].x, dimensions.x, EPSILON);
 }
