@@ -2,8 +2,8 @@
 
 #include <SDL.h>
 
-#include "particle_physics_2d.h"
 #include "drawing.h"
+#include "particle_physics_2d.h"
 
 inline vec2 WorldSpaceToScreenSpace(vec2 p)
 {
@@ -174,7 +174,7 @@ int main(int argc, char **argv)
 
         Integrate2D(particlePhysics.position, particlePhysics.velocity,
             particlePhysics.acceleration, particlePhysics.count, 0.016f);
-        
+
         // Super dumb collision detection
         for (u32 i = 0; i < particlePhysics.count; ++i)
         {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cmath>
 #include <cfloat>
+#include <cmath>
 
 #include "platform.h"
 
