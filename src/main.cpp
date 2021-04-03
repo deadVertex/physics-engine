@@ -60,6 +60,9 @@ static void RenderParticlesAsCircles(
         u32 count = GenerateCircleVertices(
             vertices, ArrayCount(vertices), physics->position[i], 0.25f, 15);
         DrawLines(renderer, vertices, count);
+
+        vec2 center = WorldSpaceToScreenSpace(physics->position[i]);
+        SDL_RenderDrawPointsF(renderer, (const SDL_FPoint *)&center, 1);
     }
 }
 
@@ -79,7 +82,61 @@ static void RenderBoxes(SDL_Renderer *renderer, Box *boxes, u32 count)
         u32 count = GenerateBoxVertices(vertices, ArrayCount(vertices),
             boxes[i].center, boxes[i].halfDims, 0.0f);
         DrawLines(renderer, vertices, count);
+
+        vec2 center = WorldSpaceToScreenSpace(boxes[i].center);
+        SDL_RenderDrawPointsF(renderer, (const SDL_FPoint *)&center, 1);
     }
+}
+
+inline f32 SquaredDistanceBetweenPointAndAabb(vec2 p, vec2 min, vec2 max)
+{
+    f32 sqDist = 0.0f;
+    sqDist += (p.x < min.x) ? Square(min.x - p.x) : 0.0f;
+    sqDist += (p.x > max.x) ? Square(p.x - max.x) : 0.0f;
+    sqDist += (p.y < min.y) ? Square(min.y - p.y) : 0.0f;
+    sqDist += (p.y > max.y) ? Square(p.y - max.y) : 0.0f;
+    return sqDist;
+}
+
+struct SatResult
+{
+    f32 pen;
+    vec2 normal;
+};
+
+inline SatResult SAT(vec2 p, f32 radius, vec2 center, vec2 halfDims)
+{
+    f32 pen[4];
+    pen[0] = (p.x + radius) - (center.x - halfDims.x);
+    pen[1] = (center.x + halfDims.x) - (p.x - radius);
+    pen[2] = (p.y + radius) - (center.y - halfDims.y);
+    pen[3] = (center.y + halfDims.y) - (p.y - radius);
+
+    vec2 normals[4];
+    normals[0] = Vec2(-1, 0);
+    normals[1] = Vec2(1, 0);
+    normals[2] = Vec2(0, -1);
+    normals[3] = Vec2(0, 1);
+
+    SatResult result = {};
+    for (u32 i = 0; i < 4; ++i)
+    {
+        if (pen[i] < 0.0f)
+        {
+            if (pen[i] < result.pen)
+            {
+                result.pen = pen[i];
+                result.normal = normals[i];
+            }
+        }
+        else
+        {
+            result = {};
+            break;
+        }
+    }
+
+    return result;
 }
 
 int main(int argc, char **argv)
@@ -136,16 +193,30 @@ int main(int argc, char **argv)
         // Super dumb collision detection
         for (u32 i = 0; i < particlePhysics.count; ++i)
         {
-            if (particlePhysics.position[i].x < -2.5f ||
-                particlePhysics.position[i].x > 2.5f)
+            vec2 p = particlePhysics.position[i];
+            f32 r = 0.25f;
+            SatResult minResult = {};
+            for (u32 boxIndex = 0; boxIndex < ArrayCount(boxes); ++boxIndex)
             {
-                particlePhysics.velocity[i].x = -particlePhysics.velocity[i].x;
-            }
+                vec2 c = boxes[boxIndex].center;
+                vec2 h = boxes[boxIndex].halfDims;
 
-            if (particlePhysics.position[i].y < 0.0f ||
-                particlePhysics.position[i].y > 5.0f)
-            {
-                particlePhysics.velocity[i].y = -particlePhysics.velocity[i].y;
+                f32 x = Sat(p.x, r, c.x, h.x);
+                f32 y = Sat(p.y, r, c.y, h.y);
+                if (x > 0.0f && y > 0.0f)
+                {
+                    // TODO: Use axis of particle velocity
+                    if (x < y)
+                    {
+                        particlePhysics.velocity[i].x =
+                            -particlePhysics.velocity[i].x;
+                    }
+                    else
+                    {
+                        particlePhysics.velocity[i].y =
+                            -particlePhysics.velocity[i].y;
+                    }
+                }
             }
         }
 
