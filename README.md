@@ -11,6 +11,7 @@ rigid body dynamics are simulated in games.
 - libsdl2-dev
 - gcovr
 - clang-format
+- cmakelang and pyyaml
 
 ## Instructions
 ### Install build dependencies (for Ubuntu 20.04)
@@ -42,6 +43,22 @@ gcovr -r . --exclude build
 ### Run the visualization application
 ```shell
 ./build/src/main
+```
+
+### Automatic formating
+```shell
+# Install clang-format
+sudo apt install clang-format
+
+# Install cmakelang
+source ./venv/bin/activate
+pip install cmakelang pyyaml
+
+# Lint CMakeList files
+./lint-cmake.sh
+
+# Format all .cpp and .h files as well as all CMakeList.txt files
+./format-code.sh
 ```
 
 ## Sources
