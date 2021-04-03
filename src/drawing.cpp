@@ -35,6 +35,8 @@ u32 GenerateCircleVertices(
 u32 GenerateBoxVertices(vec2 *vertices, u32 maxVertices, vec2 center,
     vec2 halfDims, f32 orientation)
 {
+    (void)orientation;
+
     u32 count = 0;
 
     // TODO: Support orientation
