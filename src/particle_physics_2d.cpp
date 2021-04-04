@@ -10,6 +10,15 @@ void Integrate2D(
     }
 }
 
+void UpdateAcceleration(
+    vec2 *accelerations, vec2 *forces, f32 *invMasses, u32 count)
+{
+    for (u32 i = 0; i < count; ++i)
+    {
+        accelerations[i] = accelerations[i] + forces[i] * invMasses[i];
+    }
+}
+
 u32 DetectCollisions(
     CollisionWorld *collisionWorld, OverlapEvent *events, u32 maxEvents)
 {

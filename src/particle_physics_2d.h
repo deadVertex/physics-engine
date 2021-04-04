@@ -20,6 +20,8 @@ struct KinematicsEngine
     vec2 velocity[16];
     vec2 acceleration[16];
     u32 collisionShape[16]; // Only circles supported for now
+    vec2 forceAccumulation[64];
+    f32 invMass[64];
     u32 count;
 };
 
@@ -34,6 +36,9 @@ struct CollisionWorld
 
 void Integrate2D(
     vec2 *positions, vec2 *velocities, vec2 *accelerations, u32 count, f32 dt);
+
+void UpdateAcceleration(
+    vec2 *accelerations, vec2 *forces, f32 *invMasses, u32 count);
 
 struct OverlapEvent
 {

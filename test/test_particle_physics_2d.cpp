@@ -16,6 +16,19 @@ TEST(ParticlePhysics2D, Integrate)
     ASSERT_EQ(position.y, 3.0f);
 }
 
+TEST(ParticlePhysics2D, CalculateAcceleration)
+{
+    vec2 force = Vec2(5, 10);
+    f32 invMass = 1.0f / 5.0f;
+
+    vec2 acceleration = {};
+    UpdateAcceleration(&acceleration, &force, &invMass, 1);
+
+    // a = F / m
+    ASSERT_NEAR(1.0f, acceleration.x, EPSILON);
+    ASSERT_NEAR(2.0f, acceleration.y, EPSILON);
+}
+
 TEST(CollisionWorld, ReturnsNoEventsIfNoCollisions)
 {
     CollisionWorld collisionWorld = {};
