@@ -17,4 +17,7 @@ typedef u32 b32;
 typedef float f32;
 typedef double f64;
 
+#define global static
+#define internal static
+
 #define ArrayCount(ARRAY) (sizeof(ARRAY) / sizeof(ARRAY[0]))
