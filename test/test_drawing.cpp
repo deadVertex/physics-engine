@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "drawing.h"
+#undef internal
 
 TEST(Drawing, GenerateCircleVertices)
 {

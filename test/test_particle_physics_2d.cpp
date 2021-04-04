@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "particle_physics_2d.h"
+#undef internal
 
 TEST(ParticlePhysics2D, Integrate)
 {
