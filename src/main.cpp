@@ -124,10 +124,15 @@ int main(int argc, char **argv)
     kinematicsEngine.position[0] = Vec2(-1, 2.5);
     kinematicsEngine.acceleration[0] = Vec2(0.2f, -0.5f);
     kinematicsEngine.collisionShape[0] = 0;
+    kinematicsEngine.invMass[0] = 1.0f / 5.0f;
+    kinematicsEngine.forceAccumulation[0] = Vec2(-10.0, 0);
     kinematicsEngine.position[1] = Vec2(-0.5, 2.5);
     kinematicsEngine.acceleration[1] = Vec2(-0.1f, -0.5f);
     kinematicsEngine.collisionShape[1] = 1;
+    kinematicsEngine.invMass[1] = 1.0f / 15.0f;
+    kinematicsEngine.forceAccumulation[1] = Vec2(20.0, 0);
     kinematicsEngine.count = 2;
+
 
     while (1)
     {
@@ -140,6 +145,14 @@ int main(int argc, char **argv)
             }
         }
 
+        for (u32 i = 0; i < kinematicsEngine.count; ++i)
+        {
+            kinematicsEngine.acceleration[i] = Vec2(0, -9.8f);
+        }
+
+        UpdateAcceleration(kinematicsEngine.acceleration,
+            kinematicsEngine.forceAccumulation, kinematicsEngine.invMass,
+            kinematicsEngine.count);
         Integrate2D(kinematicsEngine.position, kinematicsEngine.velocity,
             kinematicsEngine.acceleration, kinematicsEngine.count, 0.016f);
         ResolveCollisions(&kinematicsEngine, &collisionWorld);
