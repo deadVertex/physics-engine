@@ -1,24 +1,23 @@
 # How is this the recommended way to install googletest?
 include(FetchContent)
-FetchContent_Declare(gtest
+FetchContent_Declare(
+  gtest
   QUIET
-  URL https://github.com/google/googletest/archive/release-1.10.0.tar.gz
-)
+  URL https://github.com/google/googletest/archive/release-1.10.0.tar.gz)
 # configure build of googletest
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
+set(GTEST_FORCE_SHARED_CRT
+    ON
+    CACHE BOOL "" FORCE)
+set(BUILD_GMOCK
+    OFF
+    CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(gtest)
 
 include_directories(../src)
 
 add_executable(
-    unit_tests
-    test_vec2.cpp
-    ../src/particle_physics_2d.cpp
-    test_particle_physics_2d.cpp
-    ../src/drawing.cpp
-    test_drawing.cpp
-    )
+  unit_tests test_vec2.cpp ../src/particle_physics_2d.cpp
+             test_particle_physics_2d.cpp ../src/drawing.cpp test_drawing.cpp)
 
 target_link_libraries(unit_tests PRIVATE gtest_main)
 
