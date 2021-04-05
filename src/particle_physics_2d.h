@@ -14,15 +14,25 @@ struct Circle
     f32 radius;
 };
 
+struct CollisionShapeBinding
+{
+    u32 bodyIndex;
+    u32 shapeIndex;
+};
+
 struct KinematicsEngine
 {
     vec2 position[16];
     vec2 velocity[16];
     vec2 acceleration[16];
-    u32 collisionShape[16]; // Only circles supported for now
     vec2 forceAccumulation[64];
     f32 invMass[64];
     u32 count;
+
+    CollisionShapeBinding circleBindings[16];
+    u32 circleBindingCount;
+    CollisionShapeBinding boxBindings[16];
+    u32 boxBindingCount;
 };
 
 struct CollisionWorld

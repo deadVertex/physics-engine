@@ -67,8 +67,11 @@ TEST(ResolveCollisions, SyncCollisionWorldWithKinematicsEngine)
 
     KinematicsEngine kinematicsEngine = {};
     kinematicsEngine.position[0] = Vec2(10, 20);
-    kinematicsEngine.collisionShape[0] = 0;
     kinematicsEngine.count = 1;
+
+    kinematicsEngine.circleBindings[0].shapeIndex = 0;
+    kinematicsEngine.circleBindings[0].bodyIndex = 0;
+    kinematicsEngine.circleBindingCount = 1;
 
     ResolveCollisions(&kinematicsEngine, &collisionWorld);
 
@@ -89,8 +92,12 @@ TEST(ResolveCollisions, UpdatesVelocity)
     KinematicsEngine kinematicsEngine = {};
     kinematicsEngine.position[0] = Vec2(0, 1.0);
     kinematicsEngine.velocity[0] = Vec2(0, -10.0);
-    kinematicsEngine.collisionShape[0] = 0;
     kinematicsEngine.count = 1;
+
+    // TODO: Remove duplicate code?
+    kinematicsEngine.circleBindings[0].shapeIndex = 0;
+    kinematicsEngine.circleBindings[0].bodyIndex = 0;
+    kinematicsEngine.circleBindingCount = 1;
 
     ResolveCollisions(&kinematicsEngine, &collisionWorld);
 

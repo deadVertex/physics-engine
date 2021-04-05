@@ -167,7 +167,9 @@ int main(int argc, char **argv)
     collisionWorld.boxes[1].halfDims = Vec2(0.2f, 5) * 0.5f;
     collisionWorld.boxes[2].center = Vec2(2.5f, 2.5f);
     collisionWorld.boxes[2].halfDims = Vec2(0.2f, 5) * 0.5f;
-    collisionWorld.boxCount = 3;
+    collisionWorld.boxes[3].center = Vec2(0, 0);
+    collisionWorld.boxes[3].halfDims = Vec2(0.25f, 0.25f);
+    collisionWorld.boxCount = 4;
 
     collisionWorld.circles[0].center = Vec2(0, 0);
     collisionWorld.circles[0].radius = 0.25f;
@@ -178,15 +180,27 @@ int main(int argc, char **argv)
     KinematicsEngine kinematicsEngine = {};
     kinematicsEngine.position[0] = Vec2(-1, 2.5);
     kinematicsEngine.acceleration[0] = Vec2(0.2f, -0.5f);
-    kinematicsEngine.collisionShape[0] = 0;
     kinematicsEngine.invMass[0] = 1.0f / 5.0f;
     kinematicsEngine.forceAccumulation[0] = Vec2(-10.0, 0);
     kinematicsEngine.position[1] = Vec2(-0.5, 2.5);
     kinematicsEngine.acceleration[1] = Vec2(-0.1f, -0.5f);
-    kinematicsEngine.collisionShape[1] = 1;
     kinematicsEngine.invMass[1] = 1.0f / 15.0f;
     kinematicsEngine.forceAccumulation[1] = Vec2(20.0, 0);
-    kinematicsEngine.count = 2;
+    kinematicsEngine.position[2] = Vec2(0, 5);
+    kinematicsEngine.acceleration[2] = Vec2(0, 0);
+    kinematicsEngine.invMass[2] = 1.0f / 25.0f;
+    kinematicsEngine.forceAccumulation[2] = Vec2(0, -1);
+    kinematicsEngine.count = 3;
+
+    kinematicsEngine.circleBindings[0].bodyIndex = 0;
+    kinematicsEngine.circleBindings[0].shapeIndex = 0;
+    kinematicsEngine.circleBindings[1].bodyIndex = 1;
+    kinematicsEngine.circleBindings[1].shapeIndex = 1;
+    kinematicsEngine.circleBindingCount = 2;
+
+    kinematicsEngine.boxBindings[0].bodyIndex = 2;
+    kinematicsEngine.boxBindings[0].shapeIndex = 3;
+    kinematicsEngine.boxBindingCount = 1;
 
     g_Camera.position = Vec2(0, 2.5f);
 

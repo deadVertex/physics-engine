@@ -60,11 +60,14 @@ u32 DetectCollisions(
 inline b32 GetBodyIndex(
     KinematicsEngine *kinematicsEngine, u32 circleIndex, u32 *index)
 {
-    for (u32 bodyIndex = 0; bodyIndex < kinematicsEngine->count; ++bodyIndex)
+    for (u32 bindingIndex = 0;
+         bindingIndex < kinematicsEngine->circleBindingCount; ++bindingIndex)
     {
-        if (kinematicsEngine->collisionShape[bodyIndex] == circleIndex)
+        CollisionShapeBinding binding =
+            kinematicsEngine->circleBindings[bindingIndex];
+        if (binding.shapeIndex == circleIndex)
         {
-            *index = bodyIndex;
+            *index = binding.bodyIndex;
             return true;
         }
     }
@@ -75,12 +78,24 @@ inline b32 GetBodyIndex(
 void ResolveCollisions(
     KinematicsEngine *kinematicsEngine, CollisionWorld *collisionWorld)
 {
-    // Sync collision world with kinematics engine
-    for (u32 bodyIndex = 0; bodyIndex < kinematicsEngine->count; ++bodyIndex)
+    // Sync collision world circles with kinematics engine
+    for (u32 bindingIndex = 0;
+         bindingIndex < kinematicsEngine->circleBindingCount; ++bindingIndex)
     {
-        u32 index = kinematicsEngine->collisionShape[bodyIndex];
-        collisionWorld->circles[index].center =
-            kinematicsEngine->position[bodyIndex];
+        CollisionShapeBinding binding =
+            kinematicsEngine->circleBindings[bindingIndex];
+        collisionWorld->circles[binding.shapeIndex].center =
+            kinematicsEngine->position[binding.bodyIndex];
+    }
+
+    // Sync collision world boxes with kinematics engine
+    for (u32 bindingIndex = 0;
+         bindingIndex < kinematicsEngine->boxBindingCount; ++bindingIndex)
+    {
+        CollisionShapeBinding binding =
+            kinematicsEngine->boxBindings[bindingIndex];
+        collisionWorld->boxes[binding.shapeIndex].center =
+            kinematicsEngine->position[binding.bodyIndex];
     }
 
     OverlapEvent events[16];
