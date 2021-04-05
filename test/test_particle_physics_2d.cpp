@@ -33,8 +33,8 @@ TEST(ParticlePhysics2D, CalculateAcceleration)
 TEST(CollisionWorld, ReturnsNoEventsIfNoCollisions)
 {
     CollisionWorld collisionWorld = {};
-    collisionWorld.boxes[0].center = Vec2(0, 0);
-    collisionWorld.boxes[0].halfDims = Vec2(0.5f, 0.5f);
+    collisionWorld.boxes[0].center = Vec2(-10, 0);
+    collisionWorld.boxes[0].halfDims = Vec2(0.25f, 0.25f);
     collisionWorld.circles[0].center = Vec2(10, 0);
     collisionWorld.circles[0].radius = 1.0f;
     collisionWorld.boxCount = 1;
