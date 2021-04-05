@@ -93,3 +93,19 @@ inline f32 Abs(f32 x)
     f32 result = abs(x);
     return result;
 }
+
+inline mat2 RotationMatrix(f32 angle)
+{
+    /*
+     * | Cos(angle) -Sin(angle) |
+     * | Sin(angle)  Cos(angle) |
+     *
+     */
+    mat2 result;
+    result.data[0] = Cos(angle);
+    result.data[1] = Sin(angle);
+    result.data[2] = -Sin(angle);
+    result.data[3] = Cos(angle);
+
+    return result;
+}

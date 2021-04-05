@@ -16,8 +16,9 @@ FetchContent_MakeAvailable(gtest)
 include_directories(../src)
 
 add_executable(
-  unit_tests test_vec2.cpp ../src/particle_physics_2d.cpp
-             test_particle_physics_2d.cpp ../src/drawing.cpp test_drawing.cpp test_mat2.cpp)
+  unit_tests
+  test_vec2.cpp ../src/particle_physics_2d.cpp test_particle_physics_2d.cpp
+  ../src/drawing.cpp test_drawing.cpp test_mat2.cpp)
 
 target_link_libraries(unit_tests PRIVATE gtest_main)
 

@@ -205,7 +205,7 @@ int main(int argc, char **argv)
             }
         }
 
-        const u8* keyState = SDL_GetKeyboardState(NULL);
+        const u8 *keyState = SDL_GetKeyboardState(NULL);
         if (keyState[SDL_GetScancodeFromKey(SDLK_w)])
         {
             cameraAcceleration.y += cameraSpeed;
@@ -249,7 +249,7 @@ int main(int argc, char **argv)
         {
             vec2 vertices[16];
             u32 count = GenerateBoxVertices(vertices, ArrayCount(vertices),
-                    Vec2(0, 2.5), Vec2(0.5, 0.5), PI * 0.5f);
+                Vec2(0, 2.5), Vec2(0.5, 0.5), PI * 0.5f);
             DrawLines(renderer, vertices, count);
         }
         SDL_RenderPresent(renderer);

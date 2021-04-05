@@ -26,3 +26,13 @@ TEST(Mat2, MultiplyVec2)
     ASSERT_NEAR(7.0, c.x, EPSILON);
     ASSERT_NEAR(10.0, c.y, EPSILON);
 }
+
+TEST(Mat2, Rotation)
+{
+    mat2 a = RotationMatrix(PI * 0.5f);
+    vec2 b = Vec2(2.5f, 0.0f);
+
+    vec2 c = a * b;
+    ASSERT_NEAR(0.0f, c.x, EPSILON);
+    ASSERT_NEAR(2.5f, c.y, EPSILON);
+}
