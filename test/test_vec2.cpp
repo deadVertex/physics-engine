@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "math_lib.h"
+#undef internal
 
 TEST(vec2, Create)
 {
