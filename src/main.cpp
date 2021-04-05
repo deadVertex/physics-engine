@@ -47,6 +47,43 @@ static void DrawLines(SDL_Renderer *renderer, vec2 *vertices, u32 count)
     SDL_RenderDrawLinesF(renderer, (const SDL_FPoint *)vertices, count);
 }
 
+// FIXME: Half dims are still in pixels!
+static void DrawRects(
+    SDL_Renderer *renderer, vec2 *centers, vec2 *halfDims, u32 count)
+{
+    SDL_FRect rects[256];
+    Assert(count < ArrayCount(rects));
+
+    for (u32 i = 0; i < count; ++i)
+    {
+        vec2 c = WorldSpaceToScreenSpace(centers[i]);
+        rects[i].x = c.x - halfDims[i].x;
+        rects[i].y = c.y - halfDims[i].y;
+        rects[i].w = halfDims[i].x * 2.0f;
+        rects[i].h = halfDims[i].y * 2.0f;
+    }
+
+    SDL_RenderFillRectsF(renderer, rects, count);
+}
+
+// NOTE: Size is in pixels
+static void DrawPoints(SDL_Renderer *renderer, vec2 *points, u32 count, f32 size)
+{
+    SDL_FRect rects[256];
+    Assert(count < ArrayCount(rects));
+
+    for (u32 i = 0; i < count; ++i)
+    {
+        vec2 c = WorldSpaceToScreenSpace(points[i]);
+        rects[i].x = c.x - size * 0.5f;
+        rects[i].y = c.y - size * 0.5f;
+        rects[i].w = size;
+        rects[i].h = size;
+    }
+
+    SDL_RenderFillRectsF(renderer, rects, count);
+}
+
 static void RenderKinematicBodies(
     SDL_Renderer *renderer, KinematicsEngine *kinematicsEngine)
 {
@@ -135,6 +172,133 @@ static void RenderGrid(SDL_Renderer *renderer)
     }
 }
 
+inline void DrawSupport(SDL_Renderer *renderer, vec2 origin, vec2 axis, f32 t)
+{
+    vec2 perp = Perpendicular(axis);
+
+    vec2 vertices[2];
+    vertices[0] = origin + axis * t + perp * 5.0f;
+    vertices[1] = origin + axis * t - perp * 5.0f;
+
+    DrawLines(renderer, vertices, 2);
+
+    vec2 p = origin + axis * t;
+    vec2 h = Vec2(10, 10);
+    DrawRects(renderer, &p, &h, 1);
+}
+
+internal void DrawSATAxis(
+    SDL_Renderer *renderer, vec2 origin, vec2 axis, SATIntervals intervals)
+{
+    vec2 vertices[2];
+
+    vertices[0] = origin + axis * 5.0f;
+    vertices[1] = origin - axis * 5.0f;
+
+    SDL_SetRenderDrawColor(renderer, 255, 100, 0, 255);
+    DrawLines(renderer, vertices, 2);
+
+    SDL_SetRenderDrawColor(renderer, 255, 100, 100, 255);
+    DrawSupport(renderer, origin, axis, intervals.values[0]);
+
+    SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
+    DrawSupport(renderer, origin, axis, intervals.values[1]);
+
+    SDL_SetRenderDrawColor(renderer, 100, 100, 255, 255);
+    DrawSupport(renderer, origin, axis, intervals.values[2]);
+
+    SDL_SetRenderDrawColor(renderer, 255, 100, 255, 255);
+    DrawSupport(renderer, origin, axis, intervals.values[3]);
+}
+
+internal void DrawBoxSAT(SDL_Renderer *renderer)
+{
+    Box boxA;
+    boxA.center = Vec2(-10, 1.0);
+    boxA.halfDims = Vec2(0.8, 0.5);
+    f32 orientationA = PI * 0.25f;
+
+    Box boxB;
+    boxB.center = Vec2(-10, 0.0);
+    boxB.halfDims = Vec2(1.5, 0.2);
+    f32 orientationB = 0.0f;
+    {
+        // Draw box A
+        vec2 vertices[16];
+        u32 count = GenerateBoxVertices(vertices, ArrayCount(vertices),
+            boxA.center, boxA.halfDims, orientationA);
+        DrawLines(renderer, vertices, count);
+    }
+
+    {
+        // Draw box B
+        vec2 vertices[16];
+        u32 count = GenerateBoxVertices(vertices, ArrayCount(vertices),
+            boxB.center, boxB.halfDims, orientationB);
+        DrawLines(renderer, vertices, count);
+    }
+
+    vec2 boxAVertices[4];
+    GetBoxVertices(boxAVertices, ArrayCount(boxAVertices), boxA.center,
+        boxA.halfDims, orientationA);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+    DrawPoints(renderer, boxAVertices, 4, 4.0f);
+
+    vec2 boxBVertices[4];
+    GetBoxVertices(boxBVertices, ArrayCount(boxBVertices), boxB.center,
+        boxB.halfDims, orientationB);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+    DrawPoints(renderer, boxBVertices, 4, 4.0f);
+
+    // Draw test axis
+    vec2 axis[4];
+    axis[0] = RotationMatrix(orientationA)* Vec2(1, 0);
+    axis[1] = RotationMatrix(orientationA)* Vec2(0, 1);
+    axis[2] = RotationMatrix(orientationB)* Vec2(1, 0);
+    axis[3] = RotationMatrix(orientationB)* Vec2(0, 1);
+
+    // Make everything relative to boxA.center
+    for (u32 i = 0; i < 4; ++i)
+    {
+        boxAVertices[i] = boxAVertices[i] - boxA.center;
+        boxBVertices[i] = boxBVertices[i] - boxA.center;
+    }
+
+    f32 minPen = F32_MAX;
+    vec2 collisionNormal = {};
+    for (u32 i = 0; i < 4; ++i)
+    {
+        SATIntervals intervals = CalculateIntervals(
+            boxA.center, axis[i], boxAVertices, 4, boxBVertices, 4);
+
+        f32 pen = Sat2(intervals.values[0], intervals.values[1],
+            intervals.values[2], intervals.values[3]);
+        if (pen > 0.0f)
+        {
+            if (pen < minPen)
+            {
+                minPen = pen;
+                collisionNormal = axis[i];
+            }
+        }
+
+        if (i == 3)
+        {
+            for (u32 j = 0; j < 4; ++j)
+            {
+                printf("intervals[%d] = %g\n", j, intervals.values[j]);
+            }
+            printf("pen[%d] = %g\n", i, pen);
+            DrawSATAxis(renderer, boxA.center, axis[i], intervals);
+            vec2 p = boxA.center;
+            vec2 h = Vec2(10, 10);
+
+            SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
+            DrawRects(renderer, &p, &h, 1);
+        }
+    }
+}
+
 int main(int argc, char **argv)
 {
     (void)argc;
@@ -163,13 +327,13 @@ int main(int argc, char **argv)
     CollisionWorld collisionWorld = {};
     collisionWorld.boxes[0].center = Vec2(0, 0);
     collisionWorld.boxes[0].halfDims = Vec2(5, 0.2f) * 0.5f;
-    collisionWorld.boxes[1].center = Vec2(-2.5f, 2.5f);
+    /*collisionWorld.boxes[1].center = Vec2(-2.5f, 2.5f);
     collisionWorld.boxes[1].halfDims = Vec2(0.2f, 5) * 0.5f;
     collisionWorld.boxes[2].center = Vec2(2.5f, 2.5f);
-    collisionWorld.boxes[2].halfDims = Vec2(0.2f, 5) * 0.5f;
-    collisionWorld.boxes[3].center = Vec2(0, 0);
-    collisionWorld.boxes[3].halfDims = Vec2(0.25f, 0.25f);
-    collisionWorld.boxCount = 4;
+    collisionWorld.boxes[2].halfDims = Vec2(0.2f, 5) * 0.5f;*/
+    collisionWorld.boxes[1].center = Vec2(0, 0);
+    collisionWorld.boxes[1].halfDims = Vec2(0.25f, 0.25f);
+    collisionWorld.boxCount = 2;
 
     collisionWorld.circles[0].center = Vec2(0, 0);
     collisionWorld.circles[0].radius = 0.25f;
@@ -199,7 +363,7 @@ int main(int argc, char **argv)
     kinematicsEngine.circleBindingCount = 2;
 
     kinematicsEngine.boxBindings[0].bodyIndex = 2;
-    kinematicsEngine.boxBindings[0].shapeIndex = 3;
+    kinematicsEngine.boxBindings[0].shapeIndex = 1;
     kinematicsEngine.boxBindingCount = 1;
 
     g_Camera.position = Vec2(0, 2.5f);
@@ -268,12 +432,7 @@ int main(int argc, char **argv)
         RenderKinematicBodies(renderer, &kinematicsEngine);
         RenderCircles(
             renderer, collisionWorld.circles, collisionWorld.circleCount);
-        {
-            vec2 vertices[16];
-            u32 count = GenerateBoxVertices(vertices, ArrayCount(vertices),
-                Vec2(0, 3.0), Vec2(0.5, 0.5), orientation);
-            DrawLines(renderer, vertices, count);
-        }
+        DrawBoxSAT(renderer);
         SDL_RenderPresent(renderer);
 
         SDL_Delay(16);

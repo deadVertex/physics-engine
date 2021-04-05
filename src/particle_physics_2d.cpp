@@ -1,5 +1,7 @@
 #include "particle_physics_2d.h"
 
+#include <cstdio>
+
 void Integrate2D(
     vec2 *positions, vec2 *velocities, vec2 *accelerations, u32 count, f32 dt)
 {
@@ -50,6 +52,79 @@ u32 DetectCollisions(
                 {
                     event->normal = Vec2(0, 1);
                 }
+            }
+        }
+    }
+
+    for (u32 a = 0; a < collisionWorld->boxCount; ++a)
+    {
+        Box boxA = collisionWorld->boxes[a];
+
+        vec2 boxAVertices[4];
+        GetBoxVertices(boxAVertices, ArrayCount(boxAVertices), boxA.center,
+            boxA.halfDims, boxA.orientation);
+
+        // Make everything relative to boxA.center
+        for (u32 i = 0; i < 4; ++i)
+        {
+            boxAVertices[i] = boxAVertices[i] - boxA.center;
+        }
+
+        for (u32 b = 0; b < collisionWorld->boxCount; ++b)
+        {
+            if (a == b)
+            {
+                continue;
+            }
+
+            Box boxB = collisionWorld->boxes[b];
+
+            vec2 boxBVertices[4];
+            GetBoxVertices(boxBVertices, ArrayCount(boxBVertices), boxB.center,
+                boxB.halfDims, boxB.orientation);
+
+            vec2 axis[4];
+            axis[0] = RotationMatrix(boxA.orientation)* Vec2(1, 0);
+            axis[1] = RotationMatrix(boxA.orientation)* Vec2(0, 1);
+            axis[2] = RotationMatrix(boxB.orientation)* Vec2(1, 0);
+            axis[3] = RotationMatrix(boxB.orientation)* Vec2(0, 1);
+
+            // Make everything relative to boxA.center
+            for (u32 i = 0; i < 4; ++i)
+            {
+                boxBVertices[i] = boxBVertices[i] - boxA.center;
+            }
+
+            f32 minPen = F32_MAX;
+            vec2 collisionNormal = {};
+            for (u32 i = 0; i < 4; ++i)
+            {
+                SATIntervals intervals = CalculateIntervals(
+                    boxA.center, axis[i], boxAVertices, 4, boxBVertices, 4);
+
+                f32 pen = Sat2(intervals.values[0], intervals.values[1],
+                        intervals.values[2], intervals.values[3]);
+                printf("%g\n", pen);
+                if (pen > 0.0f)
+                {
+                    if (pen < minPen)
+                    {
+                        minPen = pen;
+                        collisionNormal = axis[i];
+                    }
+                }
+                else
+                {
+                    minPen = F32_MAX;
+                    break;
+                }
+            }
+
+            if (minPen < F32_MAX)
+            {
+                printf("Collision detected: %g on axis (%g, %g) between boxes "
+                       "%u and %u\n",
+                    minPen, collisionNormal.x, collisionNormal.y, a, b);
             }
         }
     }

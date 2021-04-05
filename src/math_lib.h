@@ -7,6 +7,7 @@
 
 #define PI 3.14159265359f
 #define EPSILON FLT_EPSILON
+#define F32_MAX FLT_MAX
 
 struct vec2
 {
@@ -50,6 +51,12 @@ inline vec2 operator*(vec2 a, f32 b)
     return v;
 }
 
+inline f32 Dot(vec2 a, vec2 b)
+{
+    f32 result = a.x * b.x + a.y * b.y;
+    return result;
+}
+
 inline mat2 Mat2(f32 a, f32 b, f32 c, f32 d)
 {
     mat2 result = {a, b, c, d};
@@ -61,6 +68,12 @@ inline vec2 operator*(mat2 a, vec2 b)
     vec2 result;
     result.x = a.data[0] * b.x + a.data[2] * b.y;
     result.y = a.data[1] * b.x + a.data[3] * b.y;
+    return result;
+}
+
+inline vec2 Perpendicular(vec2 a)
+{
+    vec2 result = {a.y, -a.x};
     return result;
 }
 
@@ -91,6 +104,18 @@ inline f32 Square(f32 x)
 inline f32 Abs(f32 x)
 {
     f32 result = abs(x);
+    return result;
+}
+
+inline f32 Max(f32 a, f32 b)
+{
+    f32 result = a > b ? a : b;
+    return result;
+}
+
+inline f32 Min(f32 a, f32 b)
+{
+    f32 result = a < b ? a : b;
     return result;
 }
 
