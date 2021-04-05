@@ -39,14 +39,14 @@ u32 GenerateBoxVertices(vec2 *vertices, u32 maxVertices, vec2 center,
 
     u32 count = 0;
 
-    // TODO: Support orientation
     if (maxVertices >= 5)
     {
-        vertices[0] = center + Vec2(-halfDims.x, -halfDims.y);
-        vertices[1] = center + Vec2(halfDims.x, -halfDims.y);
-        vertices[2] = center + Vec2(halfDims.x, halfDims.y);
-        vertices[3] = center + Vec2(-halfDims.x, halfDims.y);
-        vertices[4] = center + Vec2(-halfDims.x, -halfDims.y);
+        mat2 rotation = RotationMatrix(orientation);
+        vertices[0] = center + rotation * Vec2(-halfDims.x, -halfDims.y);
+        vertices[1] = center + rotation * Vec2(halfDims.x, -halfDims.y);
+        vertices[2] = center + rotation * Vec2(halfDims.x, halfDims.y);
+        vertices[3] = center + rotation * Vec2(-halfDims.x, halfDims.y);
+        vertices[4] = center + rotation * Vec2(-halfDims.x, -halfDims.y);
         count = 5;
     }
 

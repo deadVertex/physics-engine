@@ -191,6 +191,7 @@ int main(int argc, char **argv)
     g_Camera.position = Vec2(0, 2.5f);
 
     b32 isRunning = true;
+    f32 orientation = 0.0f;
     while (isRunning)
     {
         vec2 cameraAcceleration = {};
@@ -224,6 +225,13 @@ int main(int argc, char **argv)
         }
 
         f32 dt = 0.016f;
+
+        orientation += 0.1f * dt;
+        if (orientation > PI * 2.0f)
+        {
+            orientation -= PI * 2.0f;
+        }
+
         UpdateCamera(&g_Camera, cameraAcceleration, dt);
 
         for (u32 i = 0; i < kinematicsEngine.count; ++i)
@@ -249,7 +257,7 @@ int main(int argc, char **argv)
         {
             vec2 vertices[16];
             u32 count = GenerateBoxVertices(vertices, ArrayCount(vertices),
-                Vec2(0, 2.5), Vec2(0.5, 0.5), PI * 0.5f);
+                Vec2(0, 3.0), Vec2(0.5, 0.5), orientation);
             DrawLines(renderer, vertices, count);
         }
         SDL_RenderPresent(renderer);
