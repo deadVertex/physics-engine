@@ -246,6 +246,12 @@ int main(int argc, char **argv)
         RenderKinematicBodies(renderer, &kinematicsEngine);
         RenderCircles(
             renderer, collisionWorld.circles, collisionWorld.circleCount);
+        {
+            vec2 vertices[16];
+            u32 count = GenerateBoxVertices(vertices, ArrayCount(vertices),
+                    Vec2(0, 2.5), Vec2(0.5, 0.5), PI * 0.5f);
+            DrawLines(renderer, vertices, count);
+        }
         SDL_RenderPresent(renderer);
 
         SDL_Delay(16);
