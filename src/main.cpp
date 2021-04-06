@@ -110,7 +110,7 @@ static void RenderBoxes(SDL_Renderer *renderer, Box *boxes, u32 count)
     for (u32 i = 0; i < count; ++i)
     {
         u32 count = GenerateBoxVertices(vertices, ArrayCount(vertices),
-            boxes[i].center, boxes[i].halfDims, 0.0f);
+            boxes[i].center, boxes[i].halfDims, boxes[i].orientation);
         DrawLines(renderer, vertices, count);
 
         vec2 center = WorldSpaceToScreenSpace(boxes[i].center);
@@ -336,10 +336,8 @@ int main(int argc, char **argv)
     u32 circle0 = AddCircle(&collisionWorld, Vec2(0, 0), 0.25f);
     u32 circle1 = AddCircle(&collisionWorld, Vec2(0, 0), 0.25f);
 
-    /*collisionWorld.boxes[1].center = Vec2(-2.5f, 2.5f);
-    collisionWorld.boxes[1].halfDims = Vec2(0.2f, 5) * 0.5f;
-    collisionWorld.boxes[2].center = Vec2(2.5f, 2.5f);
-    collisionWorld.boxes[2].halfDims = Vec2(0.2f, 5) * 0.5f;*/
+    AddBox(&collisionWorld, Vec2(-2.5f, 2.5f),Vec2(0.2f, 5) * 0.5f, 0.0f);
+    AddBox(&collisionWorld, Vec2(2.5f, 2.5f), Vec2(0.2f, 5) * 0.5f, 0.0f);
 
     KinematicsEngine kinematicsEngine = {};
     kinematicsEngine.position[0] = Vec2(-1, 2.5);

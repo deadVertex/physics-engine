@@ -23,119 +23,6 @@ void UpdateAcceleration(
     }
 }
 
-/*
-u32 DetectCollisions(
-    CollisionWorld *collisionWorld, OverlapEvent *events, u32 maxEvents)
-{
-    u32 count = 0;
-
-    // Super dumb collision detection
-    for (u32 circleIndex = 0; circleIndex < collisionWorld->circleCount;
-         ++circleIndex)
-    {
-        vec2 p = collisionWorld->circles[circleIndex].center;
-        f32 r = collisionWorld->circles[circleIndex].radius;
-        for (u32 boxIndex = 0; boxIndex < collisionWorld->boxCount; ++boxIndex)
-        {
-            vec2 c = collisionWorld->boxes[boxIndex].center;
-            vec2 h = collisionWorld->boxes[boxIndex].halfDims;
-
-            f32 x = Sat(p.x, r, c.x, h.x);
-            f32 y = Sat(p.y, r, c.y, h.y);
-            if (x > 0.0f && y > 0.0f)
-            {
-                OverlapEvent *event = events + count++;
-                event->circleIndex = circleIndex;
-                // TODO: Use axis of particle velocity
-                if (x < y)
-                {
-                    event->normal = Vec2(1, 0);
-                }
-                else
-                {
-                    event->normal = Vec2(0, 1);
-                }
-            }
-        }
-    }
-
-    for (u32 a = 0; a < collisionWorld->boxCount; ++a)
-    {
-        Box boxA = collisionWorld->boxes[a];
-
-        vec2 boxAVertices[4];
-        GetBoxVertices(boxAVertices, ArrayCount(boxAVertices), boxA.center,
-            boxA.halfDims, boxA.orientation);
-
-        // Make everything relative to boxA.center
-        for (u32 i = 0; i < 4; ++i)
-        {
-            boxAVertices[i] = boxAVertices[i] - boxA.center;
-        }
-
-        for (u32 b = 0; b < collisionWorld->boxCount; ++b)
-        {
-            if (a == b)
-            {
-                continue;
-            }
-
-            Box boxB = collisionWorld->boxes[b];
-
-            vec2 boxBVertices[4];
-            GetBoxVertices(boxBVertices, ArrayCount(boxBVertices), boxB.center,
-                boxB.halfDims, boxB.orientation);
-
-            vec2 axis[4];
-            axis[0] = RotationMatrix(boxA.orientation)* Vec2(1, 0);
-            axis[1] = RotationMatrix(boxA.orientation)* Vec2(0, 1);
-            axis[2] = RotationMatrix(boxB.orientation)* Vec2(1, 0);
-            axis[3] = RotationMatrix(boxB.orientation)* Vec2(0, 1);
-
-            // Make everything relative to boxA.center
-            for (u32 i = 0; i < 4; ++i)
-            {
-                boxBVertices[i] = boxBVertices[i] - boxA.center;
-            }
-
-            f32 minPen = F32_MAX;
-            vec2 collisionNormal = {};
-            for (u32 i = 0; i < 4; ++i)
-            {
-                SATIntervals intervals = CalculateIntervals(
-                    boxA.center, axis[i], boxAVertices, 4, boxBVertices, 4);
-
-                f32 pen = Sat2(intervals.values[0], intervals.values[1],
-                        intervals.values[2], intervals.values[3]);
-                printf("%g\n", pen);
-                if (pen > 0.0f)
-                {
-                    if (pen < minPen)
-                    {
-                        minPen = pen;
-                        collisionNormal = axis[i];
-                    }
-                }
-                else
-                {
-                    minPen = F32_MAX;
-                    break;
-                }
-            }
-
-            if (minPen < F32_MAX)
-            {
-                printf("Collision detected: %g on axis (%g, %g) between boxes "
-                       "%u and %u\n",
-                    minPen, collisionNormal.x, collisionNormal.y, a, b);
-            }
-        }
-    }
-
-    return count;
-}
-*/
-
 inline b32 GetBodyIndex(
     KinematicsEngine *kinematicsEngine, u32 shapeHandle, u32 *index)
 {
@@ -182,11 +69,6 @@ void ResolveCollisions(
         }
     }
 
-    /*
-    OverlapEvent events[16];
-    u32 eventCount =
-        DetectCollisions(collisionWorld, events, ArrayCount(events));
-    */
     Contact contacts[16];
     u32 count =
         GenerateContacts(contacts, ArrayCount(contacts), collisionWorld);
@@ -199,39 +81,23 @@ void ResolveCollisions(
         if (GetBodyIndex(
                 kinematicsEngine, contact->shapeHandles[0], &bodyIndex))
         {
+            vec2 v = kinematicsEngine->velocity[bodyIndex];
+            vec2 n = Dot(contact->normal, v) > 0.0f ? -contact->normal
+                                                    : contact->normal;
+            kinematicsEngine->velocity[bodyIndex] = v - Dot(v, n) * n * 2.0f;
             kinematicsEngine->position[bodyIndex] =
-                kinematicsEngine->position[bodyIndex] +
-                contact->normal * contact->pen;
-
-            if (contact->normal.x > 0.0f)
-            {
-                kinematicsEngine->velocity[bodyIndex].x =
-                    -kinematicsEngine->velocity[bodyIndex].x;
-            }
-            else if (contact->normal.y > 0.0f)
-            {
-                kinematicsEngine->velocity[bodyIndex].y =
-                    -kinematicsEngine->velocity[bodyIndex].y;
-            }
+                kinematicsEngine->position[bodyIndex] + n * contact->pen;
         }
 
         if (GetBodyIndex(
                 kinematicsEngine, contact->shapeHandles[1], &bodyIndex))
         {
+            vec2 v = kinematicsEngine->velocity[bodyIndex];
+            vec2 n = Dot(contact->normal, v) > 0.0f ? -contact->normal
+                                                    : contact->normal;
+            kinematicsEngine->velocity[bodyIndex] = v - Dot(v, n) * n * 2.0f;
             kinematicsEngine->position[bodyIndex] =
-                kinematicsEngine->position[bodyIndex] +
-                contact->normal * contact->pen;
-
-            if (contact->normal.x > 0.0f)
-            {
-                kinematicsEngine->velocity[bodyIndex].x =
-                    -kinematicsEngine->velocity[bodyIndex].x;
-            }
-            else if (contact->normal.y > 0.0f)
-            {
-                kinematicsEngine->velocity[bodyIndex].y =
-                    -kinematicsEngine->velocity[bodyIndex].y;
-            }
+                kinematicsEngine->position[bodyIndex] + n * contact->pen;
         }
     }
 }

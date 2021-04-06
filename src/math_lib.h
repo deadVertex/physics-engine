@@ -51,6 +51,12 @@ inline vec2 operator*(vec2 a, f32 b)
     return v;
 }
 
+inline vec2 operator*(f32 a, vec2 b)
+{
+    vec2 v = {a * b.x, a * b.y};
+    return v;
+}
+
 inline f32 Dot(vec2 a, vec2 b)
 {
     f32 result = a.x * b.x + a.y * b.y;

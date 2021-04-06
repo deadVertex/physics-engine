@@ -68,7 +68,6 @@ static u32 BuildAabbs(Aabb *aabbs, u32 maxAabbs, u32 *shapeHandles,
 }
 
 // TODO: Consolidate with GenerateBoxVertices
-// DUPLICATE: particle_physics_2d.h
 inline u32 GetBoxVertices(vec2 *vertices, u32 maxVertices, vec2 center,
         vec2 halfDims, f32 orientation)
 {
@@ -83,7 +82,6 @@ inline u32 GetBoxVertices(vec2 *vertices, u32 maxVertices, vec2 center,
     return 4;
 }
 
-// DUPLICATE: particle_physics_2d.h
 inline f32 Support(vec2 *vertices, u32 count, vec2 d)
 {
     f32 max = -F32_MAX;
@@ -183,6 +181,90 @@ b32 BoxVsBoxNarrowPhase(Contact *contact, Box boxA, Box boxB)
     return false;
 }
 
+b32 CircleVsBoxNarrowPhase(Contact *contact, Circle circle, Box box)
+{
+    // Get list of vertices for each shape
+    vec2 boxVertices[4];
+    GetBoxVertices(boxVertices, ArrayCount(boxVertices), box.center,
+        box.halfDims, box.orientation);
+
+    // Make all vertices relative to circle.center
+    for (u32 i = 0; i < 4; ++i)
+    {
+        boxVertices[i] = boxVertices[i] - circle.center;
+    }
+
+    // Compute list of test axis from the basis vectors for the Box
+    vec2 axis[2];
+    axis[0] = RotationMatrix(box.orientation)* Vec2(1, 0);
+    axis[1] = RotationMatrix(box.orientation)* Vec2(0, 1);
+
+    // Find axis of min penetration
+    f32 minPen = F32_MAX;
+    vec2 collisionNormal = {};
+    for (u32 i = 0; i < 4; ++i)
+    {
+        // Test each axis
+        vec2 testAxis = axis[i];
+
+        // Shape A
+        // 1. We've made all points relative to the center of the circle so we've
+        // effectively centered the circle on the origin.
+        // 2. So no mater which vector we pick our projection will be +radius
+        // and -radius along it.
+        f32 t0 = circle.radius;
+        f32 t1 = -circle.radius;
+
+        // Shape B
+        f32 t2 = Support(boxVertices, 4, testAxis);
+        f32 t3 = -Support(boxVertices, 4, -testAxis);
+
+        // Sort projection intervals
+        f32 a0 = Min(t0, t1);
+        f32 a1 = Max(t0, t1);
+        f32 b0 = Min(t2, t3);
+        f32 b1 = Max(t2, t3);
+
+        printf("a0 = %g\n", a0);
+        printf("a1 = %g\n", a1);
+        printf("b0 = %g\n", b0);
+        printf("b1 = %g\n", b1);
+
+        // Magic formula for computing overlapping intervals
+        f32 pen = Min(a1, b1) - Max(a0, b0);
+        printf("pen = %g\n", pen);
+
+        if (pen > 0.0f)
+        {
+            if (pen < minPen)
+            {
+                minPen = pen;
+                collisionNormal = testAxis;
+            }
+        }
+        else
+        {
+            minPen = F32_MAX;
+            break;
+        }
+    }
+
+    if (minPen < F32_MAX)
+    {
+        printf("Collision detected: %g on axis (%g, %g)\n", minPen,
+            collisionNormal.x, collisionNormal.y);
+
+        contact->pen = minPen;
+        contact->normal = collisionNormal;
+
+        // TODO: How do we calculate contact point?
+
+        return true;
+    }
+
+    return false;
+}
+
 u32 ProcessNarrowPhase(Contact *contacts, u32 maxContacts,
     NarrowPhaseEntry *narrowPhaseEntries, u32 narrowPhaseCount,
     CollisionWorld *collisionWorld)
@@ -222,6 +304,27 @@ u32 ProcessNarrowPhase(Contact *contacts, u32 maxContacts,
         {
             // Circle vs Box or Box vs Circle
             // TODO: Implement this
+            Circle circle;
+            Box box;
+            Contact newContact = {};
+            if (typeA == CollisionShape_Circle && typeB == CollisionShape_Box)
+            {
+                circle = collisionWorld->circles[idxA];
+                box = collisionWorld->boxes[idxB];
+            }
+            else if (typeA == CollisionShape_Box &&
+                     typeB == CollisionShape_Circle)
+            {
+                box = collisionWorld->boxes[idxA];
+                circle = collisionWorld->circles[idxB];
+            }
+
+            if (CircleVsBoxNarrowPhase(&newContact, circle, box))
+            {
+                newContact.shapeHandles[0] = narrowPhase.handleA;
+                newContact.shapeHandles[1] = narrowPhase.handleB;
+                contacts[count++] = newContact;
+            }
         }
     }
 
