@@ -67,7 +67,8 @@ static void DrawRects(
 }
 
 // NOTE: Size is in pixels
-static void DrawPoints(SDL_Renderer *renderer, vec2 *points, u32 count, f32 size)
+static void DrawPoints(
+    SDL_Renderer *renderer, vec2 *points, u32 count, f32 size)
 {
     SDL_FRect rects[256];
     Assert(count < ArrayCount(rects));
@@ -329,14 +330,14 @@ int main(int argc, char **argv)
     Box boxes[16];
     Circle circles[16];
     CollisionWorld collisionWorld = CreateCollisionWorld(
-            boxes, ArrayCount(boxes), circles, ArrayCount(circles));
+        boxes, ArrayCount(boxes), circles, ArrayCount(circles));
 
     u32 box0 = AddBox(&collisionWorld, Vec2(0, 0), Vec2(2.5f, 0.1f), 0.0f);
     u32 box1 = AddBox(&collisionWorld, Vec2(0, 0), Vec2(0.25f, 0.25f), 0.0f);
     u32 circle0 = AddCircle(&collisionWorld, Vec2(0, 0), 0.25f);
     u32 circle1 = AddCircle(&collisionWorld, Vec2(0, 0), 0.25f);
 
-    AddBox(&collisionWorld, Vec2(-2.5f, 2.5f),Vec2(0.2f, 5) * 0.5f, 0.0f);
+    AddBox(&collisionWorld, Vec2(-2.5f, 2.5f), Vec2(0.2f, 5) * 0.5f, 0.0f);
     AddBox(&collisionWorld, Vec2(2.5f, 2.5f), Vec2(0.2f, 5) * 0.5f, 0.0f);
 
     KinematicsEngine kinematicsEngine = {};
@@ -428,7 +429,7 @@ int main(int argc, char **argv)
         RenderKinematicBodies(renderer, &kinematicsEngine);
         RenderCircles(
             renderer, collisionWorld.circles, collisionWorld.circleCount);
-        //DrawBoxSAT(renderer);
+        // DrawBoxSAT(renderer);
         SDL_RenderPresent(renderer);
 
         SDL_Delay(16);

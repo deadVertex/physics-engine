@@ -5,12 +5,12 @@
 enum
 {
     CollisionShape_Circle = 0,
-    CollisionShape_Box    = 1,
+    CollisionShape_Box = 1,
 };
 
 inline u32 BuildCollisionShapeHandle(u32 type, u32 idx)
 {
-    Assert(type < 0xFF); // TODO: Don't need all 8 bits
+    Assert(type < 0xFF);  // TODO: Don't need all 8 bits
     Assert(idx < 0x1000); // TODO: Formalize limits
     u32 handle = (type << 24) | idx;
     return handle;

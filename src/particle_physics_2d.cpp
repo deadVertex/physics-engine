@@ -45,8 +45,8 @@ void ResolveCollisions(
     KinematicsEngine *kinematicsEngine, CollisionWorld *collisionWorld)
 {
     // Sync collision world with kinematics engine
-    for (u32 bindingIndex = 0;
-         bindingIndex < kinematicsEngine->bindingCount; ++bindingIndex)
+    for (u32 bindingIndex = 0; bindingIndex < kinematicsEngine->bindingCount;
+         ++bindingIndex)
     {
         CollisionShapeBinding binding =
             kinematicsEngine->collisionShapeBindings[bindingIndex];
@@ -58,14 +58,14 @@ void ResolveCollisions(
 
         switch (type)
         {
-            case CollisionShape_Circle:
-                collisionWorld->circles[idx].center = p;
-                break;
-            case CollisionShape_Box:
-                collisionWorld->boxes[idx].center = p;
-                break;
-            default:
-                break;
+        case CollisionShape_Circle:
+            collisionWorld->circles[idx].center = p;
+            break;
+        case CollisionShape_Box:
+            collisionWorld->boxes[idx].center = p;
+            break;
+        default:
+            break;
         }
     }
 

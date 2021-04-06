@@ -14,8 +14,8 @@ CollisionWorld CreateCollisionWorld(
     return result;
 }
 
-u32 AddBox(CollisionWorld *collisionWorld, vec2 center, vec2 halfDims,
-    f32 orientation)
+u32 AddBox(
+    CollisionWorld *collisionWorld, vec2 center, vec2 halfDims, f32 orientation)
 {
     Assert(collisionWorld->boxCount < collisionWorld->maxBoxes);
     u32 idx = collisionWorld->boxCount++;
@@ -69,7 +69,7 @@ static u32 BuildAabbs(Aabb *aabbs, u32 maxAabbs, u32 *shapeHandles,
 
 // TODO: Consolidate with GenerateBoxVertices
 inline u32 GetBoxVertices(vec2 *vertices, u32 maxVertices, vec2 center,
-        vec2 halfDims, f32 orientation)
+    vec2 halfDims, f32 orientation)
 {
     Assert(maxVertices >= 4);
 
@@ -104,7 +104,7 @@ b32 BoxVsBoxNarrowPhase(Contact *contact, Box boxA, Box boxB)
 
     vec2 boxBVertices[4];
     GetBoxVertices(boxBVertices, ArrayCount(boxBVertices), boxB.center,
-            boxB.halfDims, boxB.orientation);
+        boxB.halfDims, boxB.orientation);
 
     // Make all vertices relative to boxA.center
     for (u32 i = 0; i < 4; ++i)
@@ -116,10 +116,10 @@ b32 BoxVsBoxNarrowPhase(Contact *contact, Box boxA, Box boxB)
     // Test every vertex on both shapes against axis for each edge (minus
     // duplicate edges)
     vec2 axis[4];
-    axis[0] = RotationMatrix(boxA.orientation)* Vec2(1, 0);
-    axis[1] = RotationMatrix(boxA.orientation)* Vec2(0, 1);
-    axis[2] = RotationMatrix(boxB.orientation)* Vec2(1, 0);
-    axis[3] = RotationMatrix(boxB.orientation)* Vec2(0, 1);
+    axis[0] = RotationMatrix(boxA.orientation) * Vec2(1, 0);
+    axis[1] = RotationMatrix(boxA.orientation) * Vec2(0, 1);
+    axis[2] = RotationMatrix(boxB.orientation) * Vec2(1, 0);
+    axis[3] = RotationMatrix(boxB.orientation) * Vec2(0, 1);
 
     f32 minPen = F32_MAX;
     vec2 collisionNormal = {};
@@ -196,8 +196,8 @@ b32 CircleVsBoxNarrowPhase(Contact *contact, Circle circle, Box box)
 
     // Compute list of test axis from the basis vectors for the Box
     vec2 axis[2];
-    axis[0] = RotationMatrix(box.orientation)* Vec2(1, 0);
-    axis[1] = RotationMatrix(box.orientation)* Vec2(0, 1);
+    axis[0] = RotationMatrix(box.orientation) * Vec2(1, 0);
+    axis[1] = RotationMatrix(box.orientation) * Vec2(0, 1);
 
     // Find axis of min penetration
     f32 minPen = F32_MAX;
@@ -208,8 +208,8 @@ b32 CircleVsBoxNarrowPhase(Contact *contact, Circle circle, Box box)
         vec2 testAxis = axis[i];
 
         // Shape A
-        // 1. We've made all points relative to the center of the circle so we've
-        // effectively centered the circle on the origin.
+        // 1. We've made all points relative to the center of the circle so
+        // we've effectively centered the circle on the origin.
         // 2. So no mater which vector we pick our projection will be +radius
         // and -radius along it.
         f32 t0 = circle.radius;

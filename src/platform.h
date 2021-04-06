@@ -25,7 +25,11 @@ typedef double f64;
 #define ArrayCount(ARRAY) (sizeof(ARRAY) / sizeof(ARRAY[0]))
 
 #ifdef ENABLE_ASSERTIONS
-#define Assert(COND) if (!(COND)) { *(int *)0 = 0; }
+#define Assert(COND)                                                           \
+    if (!(COND))                                                               \
+    {                                                                          \
+        *(int *)0 = 0;                                                         \
+    }
 #else
 #define Assert(COND)
 #endif
