@@ -119,6 +119,22 @@ inline f32 Min(f32 a, f32 b)
     return result;
 }
 
+inline vec2 Max(vec2 a, vec2 b)
+{
+    vec2 result;
+    result.x = Max(a.x, b.x);
+    result.y = Max(a.y, b.y);
+    return result;
+}
+
+inline vec2 Min(vec2 a, vec2 b)
+{
+    vec2 result;
+    result.x = Min(a.x, b.x);
+    result.y = Min(a.y, b.y);
+    return result;
+}
+
 inline mat2 RotationMatrix(f32 angle)
 {
     /*

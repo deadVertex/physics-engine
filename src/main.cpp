@@ -187,6 +187,7 @@ inline void DrawSupport(SDL_Renderer *renderer, vec2 origin, vec2 axis, f32 t)
     DrawRects(renderer, &p, &h, 1);
 }
 
+/*
 internal void DrawSATAxis(
     SDL_Renderer *renderer, vec2 origin, vec2 axis, SATIntervals intervals)
 {
@@ -298,6 +299,7 @@ internal void DrawBoxSAT(SDL_Renderer *renderer)
         }
     }
 }
+*/
 
 int main(int argc, char **argv)
 {
@@ -324,22 +326,20 @@ int main(int argc, char **argv)
 
     printf("2D Physics engine\n");
 
-    CollisionWorld collisionWorld = {};
-    collisionWorld.boxes[0].center = Vec2(0, 0);
-    collisionWorld.boxes[0].halfDims = Vec2(5, 0.2f) * 0.5f;
+    Box boxes[16];
+    Circle circles[16];
+    CollisionWorld collisionWorld = CreateCollisionWorld(
+            boxes, ArrayCount(boxes), circles, ArrayCount(circles));
+
+    u32 box0 = AddBox(&collisionWorld, Vec2(0, 0), Vec2(2.5f, 0.1f), 0.0f);
+    u32 box1 = AddBox(&collisionWorld, Vec2(0, 0), Vec2(0.25f, 0.25f), 0.0f);
+    u32 circle0 = AddCircle(&collisionWorld, Vec2(0, 0), 0.25f);
+    u32 circle1 = AddCircle(&collisionWorld, Vec2(0, 0), 0.25f);
+
     /*collisionWorld.boxes[1].center = Vec2(-2.5f, 2.5f);
     collisionWorld.boxes[1].halfDims = Vec2(0.2f, 5) * 0.5f;
     collisionWorld.boxes[2].center = Vec2(2.5f, 2.5f);
     collisionWorld.boxes[2].halfDims = Vec2(0.2f, 5) * 0.5f;*/
-    collisionWorld.boxes[1].center = Vec2(0, 0);
-    collisionWorld.boxes[1].halfDims = Vec2(0.25f, 0.25f);
-    collisionWorld.boxCount = 2;
-
-    collisionWorld.circles[0].center = Vec2(0, 0);
-    collisionWorld.circles[0].radius = 0.25f;
-    collisionWorld.circles[1].center = Vec2(0, 0);
-    collisionWorld.circles[1].radius = 0.25f;
-    collisionWorld.circleCount = 2;
 
     KinematicsEngine kinematicsEngine = {};
     kinematicsEngine.position[0] = Vec2(-1, 2.5);
@@ -356,15 +356,13 @@ int main(int argc, char **argv)
     kinematicsEngine.forceAccumulation[2] = Vec2(0, -1);
     kinematicsEngine.count = 3;
 
-    kinematicsEngine.circleBindings[0].bodyIndex = 0;
-    kinematicsEngine.circleBindings[0].shapeIndex = 0;
-    kinematicsEngine.circleBindings[1].bodyIndex = 1;
-    kinematicsEngine.circleBindings[1].shapeIndex = 1;
-    kinematicsEngine.circleBindingCount = 2;
-
-    kinematicsEngine.boxBindings[0].bodyIndex = 2;
-    kinematicsEngine.boxBindings[0].shapeIndex = 1;
-    kinematicsEngine.boxBindingCount = 1;
+    kinematicsEngine.collisionShapeBindings[0].bodyIndex = 0;
+    kinematicsEngine.collisionShapeBindings[0].shapeHandle = circle0;
+    kinematicsEngine.collisionShapeBindings[1].bodyIndex = 1;
+    kinematicsEngine.collisionShapeBindings[1].shapeHandle = circle1;
+    kinematicsEngine.collisionShapeBindings[2].bodyIndex = 2;
+    kinematicsEngine.collisionShapeBindings[2].shapeHandle = box1;
+    kinematicsEngine.bindingCount = 3;
 
     g_Camera.position = Vec2(0, 2.5f);
 
@@ -432,7 +430,7 @@ int main(int argc, char **argv)
         RenderKinematicBodies(renderer, &kinematicsEngine);
         RenderCircles(
             renderer, collisionWorld.circles, collisionWorld.circleCount);
-        DrawBoxSAT(renderer);
+        //DrawBoxSAT(renderer);
         SDL_RenderPresent(renderer);
 
         SDL_Delay(16);

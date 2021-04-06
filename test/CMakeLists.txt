@@ -18,7 +18,8 @@ include_directories(../src)
 add_executable(
   unit_tests
   test_vec2.cpp ../src/particle_physics_2d.cpp test_particle_physics_2d.cpp
-  ../src/drawing.cpp test_drawing.cpp test_mat2.cpp)
+  ../src/drawing.cpp test_drawing.cpp test_mat2.cpp
+  ../src/collision_detection.cpp test_collision_detection.cpp)
 
 target_link_libraries(unit_tests PRIVATE gtest_main)
 

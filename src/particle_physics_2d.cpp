@@ -1,5 +1,7 @@
 #include "particle_physics_2d.h"
 
+#include "collision_detection.h"
+
 #include <cstdio>
 
 void Integrate2D(
@@ -21,6 +23,7 @@ void UpdateAcceleration(
     }
 }
 
+/*
 u32 DetectCollisions(
     CollisionWorld *collisionWorld, OverlapEvent *events, u32 maxEvents)
 {
@@ -131,16 +134,17 @@ u32 DetectCollisions(
 
     return count;
 }
+*/
 
 inline b32 GetBodyIndex(
-    KinematicsEngine *kinematicsEngine, u32 circleIndex, u32 *index)
+    KinematicsEngine *kinematicsEngine, u32 shapeHandle, u32 *index)
 {
-    for (u32 bindingIndex = 0;
-         bindingIndex < kinematicsEngine->circleBindingCount; ++bindingIndex)
+    for (u32 bindingIndex = 0; bindingIndex < kinematicsEngine->bindingCount;
+         ++bindingIndex)
     {
         CollisionShapeBinding binding =
-            kinematicsEngine->circleBindings[bindingIndex];
-        if (binding.shapeIndex == circleIndex)
+            kinematicsEngine->collisionShapeBindings[bindingIndex];
+        if (binding.shapeHandle == shapeHandle)
         {
             *index = binding.bodyIndex;
             return true;
@@ -153,41 +157,77 @@ inline b32 GetBodyIndex(
 void ResolveCollisions(
     KinematicsEngine *kinematicsEngine, CollisionWorld *collisionWorld)
 {
-    // Sync collision world circles with kinematics engine
+    // Sync collision world with kinematics engine
     for (u32 bindingIndex = 0;
-         bindingIndex < kinematicsEngine->circleBindingCount; ++bindingIndex)
+         bindingIndex < kinematicsEngine->bindingCount; ++bindingIndex)
     {
         CollisionShapeBinding binding =
-            kinematicsEngine->circleBindings[bindingIndex];
-        collisionWorld->circles[binding.shapeIndex].center =
-            kinematicsEngine->position[binding.bodyIndex];
+            kinematicsEngine->collisionShapeBindings[bindingIndex];
+
+        u32 type = GetCollisionShapeHandleType(binding.shapeHandle);
+        u32 idx = GetCollisionShapeHandleIndex(binding.shapeHandle);
+
+        vec2 p = kinematicsEngine->position[binding.bodyIndex];
+
+        switch (type)
+        {
+            case CollisionShape_Circle:
+                collisionWorld->circles[idx].center = p;
+                break;
+            case CollisionShape_Box:
+                collisionWorld->boxes[idx].center = p;
+                break;
+            default:
+                break;
+        }
     }
 
-    // Sync collision world boxes with kinematics engine
-    for (u32 bindingIndex = 0;
-         bindingIndex < kinematicsEngine->boxBindingCount; ++bindingIndex)
-    {
-        CollisionShapeBinding binding =
-            kinematicsEngine->boxBindings[bindingIndex];
-        collisionWorld->boxes[binding.shapeIndex].center =
-            kinematicsEngine->position[binding.bodyIndex];
-    }
-
+    /*
     OverlapEvent events[16];
     u32 eventCount =
         DetectCollisions(collisionWorld, events, ArrayCount(events));
-    for (u32 eventIndex = 0; eventIndex < eventCount; ++eventIndex)
+    */
+    Contact contacts[16];
+    u32 count =
+        GenerateContacts(contacts, ArrayCount(contacts), collisionWorld);
+
+    // FIXME: This needs more work
+    for (u32 contactIdx = 0; contactIdx < count; ++contactIdx)
     {
-        OverlapEvent *event = events + eventIndex;
+        Contact *contact = contacts + contactIdx;
         u32 bodyIndex = 0;
-        if (GetBodyIndex(kinematicsEngine, event->circleIndex, &bodyIndex))
+        if (GetBodyIndex(
+                kinematicsEngine, contact->shapeHandles[0], &bodyIndex))
         {
-            if (event->normal.x > 0.0f)
+            kinematicsEngine->position[bodyIndex] =
+                kinematicsEngine->position[bodyIndex] +
+                contact->normal * contact->pen;
+
+            if (contact->normal.x > 0.0f)
             {
                 kinematicsEngine->velocity[bodyIndex].x =
                     -kinematicsEngine->velocity[bodyIndex].x;
             }
-            else if (event->normal.y > 0.0f)
+            else if (contact->normal.y > 0.0f)
+            {
+                kinematicsEngine->velocity[bodyIndex].y =
+                    -kinematicsEngine->velocity[bodyIndex].y;
+            }
+        }
+
+        if (GetBodyIndex(
+                kinematicsEngine, contact->shapeHandles[1], &bodyIndex))
+        {
+            kinematicsEngine->position[bodyIndex] =
+                kinematicsEngine->position[bodyIndex] +
+                contact->normal * contact->pen;
+
+            if (contact->normal.x > 0.0f)
+            {
+                kinematicsEngine->velocity[bodyIndex].x =
+                    -kinematicsEngine->velocity[bodyIndex].x;
+            }
+            else if (contact->normal.y > 0.0f)
             {
                 kinematicsEngine->velocity[bodyIndex].y =
                     -kinematicsEngine->velocity[bodyIndex].y;

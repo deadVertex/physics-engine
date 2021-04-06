@@ -2,23 +2,12 @@
 
 #include "math_lib.h"
 
-struct Box
-{
-    vec2 center;
-    vec2 halfDims;
-    f32 orientation;
-};
-
-struct Circle
-{
-    vec2 center;
-    f32 radius;
-};
+#include "collision_detection.h"
 
 struct CollisionShapeBinding
 {
     u32 bodyIndex;
-    u32 shapeIndex;
+    u32 shapeHandle;
 };
 
 struct KinematicsEngine
@@ -30,19 +19,8 @@ struct KinematicsEngine
     f32 invMass[64];
     u32 count;
 
-    CollisionShapeBinding circleBindings[16];
-    u32 circleBindingCount;
-    CollisionShapeBinding boxBindings[16];
-    u32 boxBindingCount;
-};
-
-struct CollisionWorld
-{
-    Box boxes[16];
-    u32 boxCount;
-
-    Circle circles[16];
-    u32 circleCount;
+    CollisionShapeBinding collisionShapeBindings[16];
+    u32 bindingCount;
 };
 
 void Integrate2D(
@@ -51,6 +29,7 @@ void Integrate2D(
 void UpdateAcceleration(
     vec2 *accelerations, vec2 *forces, f32 *invMasses, u32 count);
 
+/*
 struct OverlapEvent
 {
     u32 circleIndex;
@@ -59,10 +38,12 @@ struct OverlapEvent
 
 u32 DetectCollisions(
     CollisionWorld *collisionWorld, OverlapEvent *events, u32 maxEvents);
+*/
 
 void ResolveCollisions(
     KinematicsEngine *kinematicsEngine, CollisionWorld *collisionWorld);
 
+/*
 inline f32 Sat(f32 p0, f32 r0, f32 p1, f32 r1)
 {
     f32 a = p0 - r0;
@@ -201,4 +182,4 @@ inline SATIntervals CalculateIntervals(vec2 origin, vec2 axis, vec2 *verticesA,
 
     return intervals;
 }
-
+*/
