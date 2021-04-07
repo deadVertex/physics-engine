@@ -1,5 +1,7 @@
 #pragma once
 
+#define ENABLE_ASSERTIONS
+
 #include <cstdint>
 
 typedef uint8_t u8;
@@ -21,3 +23,13 @@ typedef double f64;
 #define internal static
 
 #define ArrayCount(ARRAY) (sizeof(ARRAY) / sizeof(ARRAY[0]))
+
+#ifdef ENABLE_ASSERTIONS
+#define Assert(COND)                                                           \
+    if (!(COND))                                                               \
+    {                                                                          \
+        *(int *)0 = 0;                                                         \
+    }
+#else
+#define Assert(COND)
+#endif
